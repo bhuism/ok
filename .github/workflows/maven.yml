@@ -29,16 +29,20 @@ jobs:
         run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=eu.gcr.io/impl-383520/okapplication
 
       # Install and set gcloud
-      - name: Set up gcloud
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      - name: 'auth'
+        uses: 'google-github-actions/auth@v1'
         with:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets[env.SECRET_KEY_NAME] }}
           export_default_credentials: true
 
-      # Configure docker to use the gcloud command-line tool as a credential helper
-      - run: |
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        run: |
           gcloud auth configure-docker -q
+
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
 
       # Push image to Google Container Registry
       - name: Build
