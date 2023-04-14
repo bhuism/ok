@@ -32,7 +32,7 @@ jobs:
       - name: Build container
         run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
-      - id: 'Auth GC'
+      - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v1'
         with:
