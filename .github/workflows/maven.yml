@@ -26,16 +26,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Maven
-        run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=eu.gcr.io/impl-383520/okapplication
+        run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker
 
       - name: Set up gcloud Cloud SDK environment
         uses: google-github-actions/setup-gcloud@v1.1.0
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: 'Use gcloud CLI'
-        run: 'gcloud info'
+      - name: 'configure docker'
+        run: |
+          gcloud auth configure-docker europe-west4-docker.pkg.dev
 
       - name: 'configure docker'
         run: |
-          gcloud auth configure-docker -q
+          docker push
