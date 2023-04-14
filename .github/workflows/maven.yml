@@ -37,6 +37,6 @@ jobs:
         run: |
           gcloud auth configure-docker europe-west4-docker.pkg.dev
 
-      - name: 'configure docker'
+      - name: 'push image to GCR'
         run: |
           docker push
