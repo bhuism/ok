@@ -29,10 +29,10 @@ jobs:
       - name: Build with Maven
         run: env
       
-      - name: Build with Maven
+      - name: Build container
         run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
-      - id: 'auth'
+      - id: 'Auth GC'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v1'
         with:
@@ -43,11 +43,11 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: 'configure docker'
+      - name: 'Configure docker'
         run: |        
           gcloud auth configure-docker europe-west4-docker.pkg.dev
 
-      - name: 'push image to GCR'
+      - name: 'Push image to GCR'
         run: |
           env
           docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
