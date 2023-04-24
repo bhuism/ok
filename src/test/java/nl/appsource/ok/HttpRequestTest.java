@@ -13,14 +13,25 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 public class HttpRequestTest {
 
     @Value(value = "${local.server.port}")
-    private int port;
+    private int serverPort;
+
+//    @Value(value = "${management.server.port}")
+    private int managementPort = 9080;
+
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
     public void greetingShouldReturnDefaultMessage() throws Exception {
-        assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/",
+        assertThat(this.restTemplate.getForObject("http://localhost:" + serverPort + "/",
                 String.class)).isEqualTo("OK");
     }
+
+    @Test
+    public void actuatorHealthShouldReturnDefaultMessage() throws Exception {
+        assertThat(this.restTemplate.getForObject("http://localhost:" + managementPort + "/actuator/health",
+            String.class)).isEqualTo("{\"status\":\"UP\"}");
+    }
+
 }
