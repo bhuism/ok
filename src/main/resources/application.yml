@@ -1,5 +1,7 @@
 
-
+management:
+  server:
+    port: 9080
 spring:
   application:
     name: ok
