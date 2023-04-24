@@ -23,19 +23,32 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'liberica'
           cache: maven
+
       - name: Build with Maven
-        run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=eu.gcr.io/impl-383520/okapplication
+        run: env
+      
+      - name: Build container
+        run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
       - name: Set up gcloud Cloud SDK environment
         uses: google-github-actions/setup-gcloud@v1.1.0
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: 'Use gcloud CLI'
-        run: 'gcloud info'
+      - name: 'Configure docker'
+        run: |        
+          gcloud auth configure-docker europe-west4-docker.pkg.dev
 
-      - name: 'configure docker'
+      - name: 'Push image to GCR'
         run: |
-          gcloud auth configure-docker -q
+          env
+          docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
+         
