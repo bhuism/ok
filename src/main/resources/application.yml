@@ -11,3 +11,5 @@ spring:
   application:
     name: ok
 
+server:
+  port: 8080
