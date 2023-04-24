@@ -23,7 +23,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -43,8 +46,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
             </plugin>
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
@@ -54,9 +58,9 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                	<image>
-                		<builder>dashaun/native-builder:focal-arm64</builder>
-                	</image>
+                    <image>
+                        <builder>dashaun/native-builder:focal-arm64</builder>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>

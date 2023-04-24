@@ -4,12 +4,21 @@ management:
     health:
       probes:
         enabled: true
-
   server:
     port: 9080
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 spring:
   application:
     name: ok
 
 server:
   port: 8080
+
+
+logging:
+  level:
+    ROOT: info
+    nl.appsource: info
