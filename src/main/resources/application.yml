@@ -1,4 +1,3 @@
-
 management:
   endpoint:
     health:
@@ -9,7 +8,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health, info
 spring:
   application:
     name: ok
