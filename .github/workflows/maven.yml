@@ -47,6 +47,5 @@ jobs:
 
       - name: 'Push image to GCR'
         run: |
-          env
           docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
          
