@@ -42,10 +42,8 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
 
       - name: 'Configure docker'
-        run: |        
-          gcloud auth configure-docker europe-west4-docker.pkg.dev
+        run: gcloud auth configure-docker europe-west4-docker.pkg.dev
 
       - name: 'Push image to GCR'
-        run: |
-          docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
+        run: docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
          
