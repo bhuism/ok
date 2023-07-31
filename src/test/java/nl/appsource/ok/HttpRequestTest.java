@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,9 +25,30 @@ public class HttpRequestTest {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void greetingShouldReturnDefaultMessage() {
-        assertThat(this.restTemplate.getForObject("http://localhost:" + serverPort + "/",
-            String.class)).isEqualTo("OK");
+    public void greetingShouldReturnOkMessage() {
+        final HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("x-forwarded-host", "ok.impl.nl");
+        final HttpEntity<String> entity = new HttpEntity<>(requestHeaders);
+        assertThat(
+            this.restTemplate.exchange("http://localhost:" + serverPort + "/", HttpMethod.GET,
+                entity,
+                String.class
+            ).getBody()
+        ).isEqualTo("OK");
+    }
+
+    @Test
+    public void greetingShouldReturnIp() {
+        final HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("x-forwarded-host", "ip.impl.nl");
+        requestHeaders.set("x-original-forwarded-for", "a.b.c.d");
+        final HttpEntity<String> entity = new HttpEntity<>(requestHeaders);
+        assertThat(
+            this.restTemplate.exchange("http://localhost:" + serverPort + "/", HttpMethod.GET,
+                entity,
+                String.class
+            ).getBody()
+        ).isEqualTo("a.b.c.d");
     }
 
     @Test

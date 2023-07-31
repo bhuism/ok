@@ -19,5 +19,6 @@ server:
 
 logging:
   level:
-    ROOT: info
+    ROOT: warn
     nl.appsource: info
+
