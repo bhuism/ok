@@ -1,6 +1,7 @@
 package nl.appsource.ok;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
+@Slf4j
 @RestController
 public class OkController {
 
@@ -42,7 +44,12 @@ public class OkController {
         final ServerHttpRequest request = new ServletServerHttpRequest(httpServletRequest);
         final UriComponents uriComponents = UriComponentsBuilder.fromHttpRequest(request).build();
 
-        return Optional.ofNullable(uriComponents.getHost()).flatMap(name -> switch (name) {
+        return Optional.ofNullable(uriComponents.getHost())
+            .map(name -> {
+                log.info("Got request for host: " + name);
+                return name;
+            })
+            .flatMap(name -> switch (name) {
                 case "ok.impl.nl" -> Optional.of("OK");
                 case "ip.impl.nl" -> originalForwardedFor;
                 case "time.impl.nl" -> mytime.apply(zone);
