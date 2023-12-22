@@ -10,8 +10,6 @@ management:
       exposure:
         include: '*'
 spring:
-  main:
-    allow-bean-definition-overriding: true
   application:
     name: ok
 
