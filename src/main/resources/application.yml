@@ -22,4 +22,6 @@ logging:
   level:
     ROOT: warn
     nl.appsource: info
+#    org.springframework.web: debug
+#    org.springframework.security: debug
 

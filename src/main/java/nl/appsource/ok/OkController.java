@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.ForwardedHeaderUtils;
 import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,7 +34,7 @@ public class OkController {
     )));
     public static final String X_ORIGINAL_FORWARDED_FOR = "x-original-forwarded-for";
 
-    @GetMapping("/")
+    @GetMapping("/**")
     public ResponseEntity<String> home(
         final HttpServletRequest httpServletRequest,
         @RequestHeader(X_ORIGINAL_FORWARDED_FOR) final Optional<String> originalForwardedFor,
@@ -42,7 +42,7 @@ public class OkController {
     ) {
 
         final ServerHttpRequest request = new ServletServerHttpRequest(httpServletRequest);
-        final UriComponents uriComponents = UriComponentsBuilder.fromHttpRequest(request).build();
+        final UriComponents uriComponents = ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders()).build();
 
         return Optional.ofNullable(uriComponents.getHost())
             .map(name -> {
@@ -51,9 +51,15 @@ public class OkController {
             })
             .flatMap(name -> switch (name) {
                 case "ok.impl.nl" -> Optional.of("OK");
+                case "localhost" -> Optional.of("OK");
                 case "ip.impl.nl" -> originalForwardedFor;
                 case "time.impl.nl" -> mytime.apply(zone);
-                default -> Optional.empty();
+                default -> {
+
+                    log.warn("Unknown host: " + name);
+
+                    yield Optional.empty();
+                }
             })
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
