@@ -1,4 +1,4 @@
-package nl.appsource.ok;
+package nl.appsource.ok.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +14,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER));
-
-        http.authorizeHttpRequests((requests) -> requests
-            .anyRequest().permitAll()
-//            .anyRequest().anonymous()
-
-        );
+        http
+            .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER))
+            .authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
 
         return http.build();
     }

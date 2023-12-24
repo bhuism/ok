@@ -1,4 +1,4 @@
-package nl.appsource.ok;
+package nl.appsource.ok.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
