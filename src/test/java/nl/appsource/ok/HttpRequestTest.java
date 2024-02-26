@@ -37,7 +37,7 @@ public class HttpRequestTest {
                 entity,
                 String.class
             ).getBody()
-        ).isEqualTo("OK");
+        ).isEqualTo("ok");
     }
 
     @Test
