@@ -50,8 +50,8 @@ public class OkController {
                 return name;
             })
             .flatMap(name -> switch (name) {
-                case "ok.impl.nl" -> Optional.of("OK");
-                case "localhost" -> Optional.of("OK");
+                case "ok.impl.nl" -> Optional.of("ok");
+                case "localhost" -> Optional.of("ok");
                 case "ip.impl.nl" -> originalForwardedFor;
                 case "time.impl.nl" -> mytime.apply(zone);
                 default -> {
