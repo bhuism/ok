@@ -50,14 +50,21 @@ public class OkController {
                 return name;
             })
             .flatMap(name -> switch (name) {
-                case "ok.impl.nl" -> Optional.of("ok");
-                case "localhost" -> Optional.of("ok");
-                case "ip.impl.nl" -> originalForwardedFor;
-                case "time.impl.nl" -> mytime.apply(zone);
-                default -> {
-
+                case "ok-ok-service.okapp":
+                case "ok.impl.nl":
+                case "localhost": {
+                    yield Optional.of("ok");
+                }
+                case "ok-ip-service.okapp":
+                case "ip.impl.nl": {
+                    yield originalForwardedFor;
+                }
+                case "ok-time-service.okapp":
+                case "time.impl.nl": {
+                    yield mytime.apply(zone);
+                }
+                default: {
                     log.warn("Unknown host: " + name);
-
                     yield Optional.empty();
                 }
             })
