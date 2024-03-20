@@ -44,11 +44,9 @@ public class OkController {
         final ServerHttpRequest request = new ServletServerHttpRequest(httpServletRequest);
         final UriComponents uriComponents = ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders()).build();
 
+        log.info("Got request for uri: " + uriComponents.toUri());
+
         return Optional.ofNullable(uriComponents.getHost())
-            .map(name -> {
-                log.info("Got request for host: " + name);
-                return name;
-            })
             .flatMap(name -> switch (name) {
                 case "ok-ok-service.okapp":
                 case "ok.impl.nl":
