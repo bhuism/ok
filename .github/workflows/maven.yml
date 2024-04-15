@@ -56,5 +56,5 @@ jobs:
         env:
           KBCONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
-          echo "${KBCONFIG}" > /tmp/kube_config
+          echo "${KBCONFIG}" | base64 --decode > /tmp/kube_config
           ./kubectl --kubeconfig /tmp/kube_config --insecure-skip-tls-verify rollout restart deployment -n okapp ok
