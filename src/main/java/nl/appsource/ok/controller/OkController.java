@@ -2,6 +2,8 @@ package nl.appsource.ok.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
@@ -33,6 +36,11 @@ public class OkController {
             .orElse(ZoneId.systemDefault())
     )));
     public static final String X_ORIGINAL_FORWARDED_FOR = "x-original-forwarded-for";
+    private static final Consumer<HttpHeaders> DEFAULT_HEADERS = httpHeaders -> {
+        httpHeaders.add("Access-Control-Allow-Origin", "*");
+        httpHeaders.add("Access-Control-Allow-Headers", "*");
+        httpHeaders.add("Access-Control-Allow-Methods", "*");
+    };
 
     @GetMapping("/**")
     public ResponseEntity<String> home(
@@ -66,8 +74,8 @@ public class OkController {
                     yield Optional.empty();
                 }
             })
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+            .map(string -> ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).headers(DEFAULT_HEADERS).body(string))
+            .orElse(ResponseEntity.notFound().headers(DEFAULT_HEADERS).build());
     }
 
 }
