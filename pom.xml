@@ -60,7 +60,10 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
+                    <!--
                         <builder>dashaun/java-native-builder-arm64:latest</builder>
+                        -->
+                        <builder>dashaun/builder:tiny</builder>
                     </image>
                 </configuration>
             </plugin>

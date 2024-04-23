@@ -10,41 +10,43 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   build:
-    runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    # runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    runs-on: ubuntu-latest
+
     steps:
       - uses: catchpoint/workflow-telemetry-action@v2
       - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'liberica'
+          java-version: "17"
+          distribution: "liberica"
           cache: maven
-      
+
       - name: Build container
         run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
         with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
 
       - name: Set up gcloud Cloud SDK environment
         uses: google-github-actions/setup-gcloud@v2.1.0
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: 'Configure docker'
+      - name: "Configure docker"
         run: gcloud auth configure-docker europe-west4-docker.pkg.dev
 
-      - name: 'Push image to GCR'
+      - name: "Push image to GCR"
         run: docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
       - name: Refresh
@@ -52,7 +54,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
-          args: -n okapp rollout restart deployment ok        
+          args: -n okapp rollout restart deployment ok
 
       # - name: "Install kubectl"
       #   run: |
