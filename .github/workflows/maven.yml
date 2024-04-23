@@ -16,8 +16,7 @@ on:
 
 jobs:
   build:
-    # runs-on: buildjet-4vcpu-ubuntu-2204-arm
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2204-arm
 
     steps:
       - uses: catchpoint/workflow-telemetry-action@v2
@@ -49,21 +48,14 @@ jobs:
       - name: "Push image to GCR"
         run: docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
-      - name: Refresh
-        uses: actions-hub/kubectl@master
+      - name: "Install kubectl"
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+          chmod 755 ./kubectl
+
+      - name: "Rollout restart"
         env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        with:
-          args: -n okapp rollout restart deployment ok
-
-      # - name: "Install kubectl"
-      #   run: |
-      #     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
-      #     chmod 755 ./kubectl
-
-      # - name: "Rollout restart"
-      #   env:
-      #     KBCONFIG: ${{ secrets.KUBE_CONFIG }}
-      #   run: |
-      #     echo "${KBCONFIG}" | base64 --decode > /tmp/kube_config
-      #     ./kubectl --kubeconfig /tmp/kube_config --insecure-skip-tls-verify rollout restart deployment -n okapp ok
+          KBCONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          echo "${KBCONFIG}" | base64 --decode > /tmp/kube_config
+          ./kubectl --kubeconfig /tmp/kube_config --insecure-skip-tls-verify rollout restart deployment -n okapp ok
