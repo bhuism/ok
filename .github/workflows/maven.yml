@@ -28,7 +28,7 @@ jobs:
           cache: maven
 
       - name: Build container
-        run: mvn -Pnative -ntp -B spring-boot:build-image --file pom.xml -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
+        run: mvn -Pnative -ntp -B spring-boot:build-image -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
       - id: "auth"
         name: "Authenticate to Google Cloud"
