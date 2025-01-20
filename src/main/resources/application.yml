@@ -1,14 +1,23 @@
 management:
   endpoint:
+    info:
+      access: read_only
     health:
+      access: read_only
       probes:
         enabled: true
-  server:
-    port: 9080
   endpoints:
     web:
+      base-path: /manage
       exposure:
-        include: '*'
+        include:
+          - health
+          - info
+  server:
+    port: 9080
+    ssl:
+      enabled: false
+    add-application-context-header: true
 spring:
   application:
     name: ok

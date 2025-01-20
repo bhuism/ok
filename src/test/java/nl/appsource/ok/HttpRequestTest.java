@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,8 +22,8 @@ public class HttpRequestTest {
     @Value(value = "${local.server.port}")
     private int serverPort;
 
-    //    @Value(value = "${management.server.port}")
-    private final int managementPort = 9080;
+    @LocalManagementPort
+    private int managementPort;
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -70,8 +71,20 @@ public class HttpRequestTest {
 
     @Test
     public void actuatorHealthShouldReturnDefaultMessage() {
-        assertThat(this.restTemplate.getForObject("http://localhost:" + managementPort + "/actuator/health",
+        assertThat(this.restTemplate.getForObject("http://localhost:" + managementPort + "/manage/health",
             String.class)).isEqualTo("{\"status\":\"UP\",\"groups\":[\"liveness\",\"readiness\"]}");
+    }
+
+    @Test
+    public void actuatorHealthLiveNessShouldReturnDefaultMessage() {
+        assertThat(this.restTemplate.getForObject("http://localhost:" + managementPort + "/manage/health/liveness",
+            String.class)).isEqualTo("{\"status\":\"UP\"}");
+    }
+
+    @Test
+    public void actuatorHealthReadinessShouldReturnDefaultMessage() {
+        assertThat(this.restTemplate.getForObject("http://localhost:" + managementPort + "/manage/health/readiness",
+            String.class)).isEqualTo("{\"status\":\"UP\"}");
     }
 
 }
