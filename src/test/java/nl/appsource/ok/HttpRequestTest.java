@@ -59,7 +59,7 @@ public class HttpRequestTest {
     public void greetingShouldReturnIp() {
         final HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.set("x-forwarded-host", "ip.impl.nl");
-        requestHeaders.set("x-original-forwarded-for", "a.b.c.d");
+        requestHeaders.set("x-real-ip", "a.b.c.d");
         final HttpEntity<String> entity = new HttpEntity<>(requestHeaders);
         assertThat(
             this.restTemplate.exchange("http://localhost:" + serverPort + "/", HttpMethod.GET,
