@@ -52,6 +52,11 @@ public class OkController {
         final ServerHttpRequest request = new ServletServerHttpRequest(httpServletRequest);
         final UriComponents uriComponents = ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders()).build();
 
+
+        request.getHeaders().forEach((s, strings) -> {
+            log.info("got header: " + s + "=" + strings);
+        });
+
         log.info("Got request for uri: " + uriComponents.toUri());
 
         return Optional.ofNullable(uriComponents.getHost())
