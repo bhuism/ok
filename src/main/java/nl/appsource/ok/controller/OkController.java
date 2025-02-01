@@ -35,7 +35,7 @@ public class OkController {
             .map(ZoneId::of)
             .orElse(ZoneId.systemDefault())
     )));
-    public static final String X_ORIGINAL_FORWARDED_FOR = "x-original-forwarded-for";
+    public static final String X_REAL_IP = "x-real-ip";
     private static final Consumer<HttpHeaders> DEFAULT_HEADERS = httpHeaders -> {
         httpHeaders.add("Access-Control-Allow-Origin", "*");
         httpHeaders.add("Access-Control-Allow-Headers", "*");
@@ -45,19 +45,16 @@ public class OkController {
     @GetMapping("/**")
     public ResponseEntity<String> home(
         final HttpServletRequest httpServletRequest,
-        @RequestHeader(X_ORIGINAL_FORWARDED_FOR) final Optional<String> originalForwardedFor,
+        @RequestHeader(X_REAL_IP) final Optional<String> originalForwardedFor,
         @RequestParam final Optional<String> zone
     ) {
 
         final ServerHttpRequest request = new ServletServerHttpRequest(httpServletRequest);
         final UriComponents uriComponents = ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders()).build();
 
-
-        request.getHeaders().forEach((s, strings) -> {
-            log.info("got header: " + s + "=" + strings);
-        });
-
         log.info("Got request for uri: " + uriComponents.toUri());
+
+        request.getHeaders().forEach((s, strings) -> log.info(" Got header: " + s + "=" + strings));
 
         return Optional.ofNullable(uriComponents.getHost())
             .flatMap(name -> switch (name) {
