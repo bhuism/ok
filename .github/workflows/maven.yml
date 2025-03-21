@@ -31,28 +31,34 @@ jobs:
         run: mvn -Pnative -ntp -B spring-boot:build-image -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
       - id: "auth"
+        if: github.event_name != 'pull_request'
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
 
       - name: Set up gcloud Cloud SDK environment
+        if: github.event_name != 'pull_request'
         uses: google-github-actions/setup-gcloud@v2.1.4
         with:
           project_id: impl-383520
 
       - name: "Configure docker"
+        if: github.event_name != 'pull_request'
         run: gcloud auth configure-docker europe-west4-docker.pkg.dev
 
       - name: "Push image to GCR"
+        if: github.event_name != 'pull_request'
         run: docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
 
       - name: "Install kubectl"
+        if: github.event_name != 'pull_request'
         run: |
           curl -sLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
           chmod 755 ./kubectl
 
       - name: "Rollout restart"
+        if: github.event_name != 'pull_request'
         env:
           KBCONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
