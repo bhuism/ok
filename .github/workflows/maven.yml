@@ -1,66 +1,137 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Java CI with Maven
+name: Ok app
 
 on:
   push:
-    branches: ["master"]
+    branches: [ "development" ]
   pull_request:
-    branches: ["master"]
+    branches: [ "development" ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-24.04-arm
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: Set up JDK
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup  Java
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
-          distribution: "liberica"
+          java-version: '21'
+          distribution: 'liberica'
           cache: maven
 
-      - name: Build container
-        run: mvn -Pnative -ntp -B spring-boot:build-image -Dspring-boot.build-image.imageName=europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
+      - name: Test with Maven
+        run: mvn -ntp -B clean verify org.apache.maven.plugins:maven-checkstyle-plugin:check com.github.spotbugs:spotbugs-maven-plugin:check
 
-      - id: "auth"
-        if: github.event_name != 'pull_request'
-        name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v2"
+  build:
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: true
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: ubuntu-latest
+            javaarch: x64
+          - platform: arm64
+            runner: ubuntu-24.04-arm
+            javaarch: aarch64
+    runs-on: ${{ matrix.runner }}
+
+    needs:
+      - test
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: print arch
+        run: uname -a
+
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+          fetch-depth: 0
 
-      - name: Set up gcloud Cloud SDK environment
-        if: github.event_name != 'pull_request'
-        uses: google-github-actions/setup-gcloud@v2.1.4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          project_id: impl-383520
+          registry: ghcr.io/bhuism/ok
+          username: bhuism
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Configure docker"
-        if: github.event_name != 'pull_request'
-        run: gcloud auth configure-docker europe-west4-docker.pkg.dev
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/bhuism/ok
 
-      - name: "Push image to GCR"
-        if: github.event_name != 'pull_request'
-        run: docker push europe-west4-docker.pkg.dev/impl-383520/docker/ok:latest
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'liberica'
+          architecture: ${{ matrix.javaarch }}
+          java-version: '21'
+          cache: 'maven'
 
-      - name: "Install kubectl"
-        if: github.event_name != 'pull_request'
+      - name: Buid and publish image via spring build-image
         run: |
-          curl -sLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
-          chmod 755 ./kubectl
+          mvn -Pnative -ntp -B -DskipTests clean spring-boot:build-image -Dspring-boot.build-image.imagePlatform=linux/${{ matrix.platform }} -Dspring-boot.build-image.imageName=ghcr.io/bhuism/ok:latest-${{ matrix.platform }}
 
-      - name: "Rollout restart"
-        if: github.event_name != 'pull_request'
-        env:
-          KBCONFIG: ${{ secrets.KUBE_CONFIG }}
+      - name: Push
         run: |
-          echo "${KBCONFIG}" | base64 --decode > /tmp/kube_config
-          ./kubectl --kubeconfig /tmp/kube_config rollout restart statefulset -n okapp ok
+          docker push ghcr.io/bhuism/ok:latest-${{ matrix.platform }}
+
+  #      - name: Set up Pack
+  #        uses: buildpacks/github-actions/setup-pack@v5.8.6
+  #        with:
+  #          pack-version: 0.35.1
+
+  #      - name: Build and publish image via pack
+  #        run: |
+  #          pack build ghcr.io/bhuism/ok:latest-${{ matrix.platform }} \
+  #            --builder docker.io/paketobuildpacks/builder-jammy-buildpackless-tiny \
+  #            --buildpack gcr.io/paketo-buildpacks/java-native-image \
+  #            --publish \
+  #            --platform linux/${{ matrix.platform }} \
+  #            --env BP_NATIVE_IMAGE=true \
+  #            --env BP_MAVEN_ACTIVE_PROFILES=native
+
+
+  manifest-and-push:
+    runs-on: ubuntu-latest
+    needs: build
+    if: success()
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io/bhuism/ok
+          username: bhuism
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: merge containers and push
+        run: |
+          docker manifest create ghcr.io/bhuism/ok:latest \
+            ghcr.io/bhuism/ok:latest-amd64 ghcr.io/bhuism/ok:latest-arm64
+          docker manifest push ghcr.io/bhuism/ok:latest
+
+
+  rollout-restart:
+    needs: manifest-and-push
+    runs-on: ubuntu-latest
+    name: Rollout Restart
+    steps:
+      - name: Kubernetes context
+        uses: Azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+      - name: Rollout Restart
+        run: kubectl -n okapp rollout restart statefulset ok
