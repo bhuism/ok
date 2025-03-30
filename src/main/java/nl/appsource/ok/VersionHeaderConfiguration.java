@@ -17,6 +17,7 @@ public class VersionHeaderConfiguration {
     private final GitProperties gitProperties;
 
     @Bean
+    @SuppressWarnings("DesignForExtension")
     public Filter addVersionHeader() {
         return (request, servletResponse, filterChain) -> {
             final HttpServletResponse response = (HttpServletResponse) servletResponse;

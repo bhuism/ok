@@ -29,7 +29,7 @@ public class OkController {
 
     private static final Set<String> AVAILABLE_ZONE_IDS = ZoneId.getAvailableZoneIds();
 
-    private static final Function<Optional<String>, Optional<String>> mytime = (zone) -> Optional.of(ISO_OFFSET_DATE_TIME.format(LocalDateTime.now().atZone(
+    private static final Function<Optional<String>, Optional<String>> MYYIME = (zone) -> Optional.of(ISO_OFFSET_DATE_TIME.format(LocalDateTime.now().atZone(
         zone
             .filter(AVAILABLE_ZONE_IDS::contains)
             .map(ZoneId::of)
@@ -43,6 +43,7 @@ public class OkController {
     };
 
     @GetMapping("/**")
+    @SuppressWarnings("DesignForExtension")
     public ResponseEntity<String> home(
         final HttpServletRequest httpServletRequest,
         @RequestHeader(X_REAL_IP) final Optional<String> originalForwardedFor,
@@ -55,6 +56,7 @@ public class OkController {
         log.info("Got request for uri: " + uriComponents.toUri());
 
 //        request.getHeaders().forEach((s, strings) -> log.info(" Got header: " + s + "=" + strings));
+
 
         return Optional.ofNullable(uriComponents.getHost())
             .flatMap(name -> switch (name) {
@@ -69,7 +71,7 @@ public class OkController {
                 }
                 case "ok-time-service.okapp":
                 case "time.impl.nl": {
-                    yield mytime.apply(zone);
+                    yield MYYIME.apply(zone);
                 }
                 default: {
                     log.warn("Unknown host: " + name);

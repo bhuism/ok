@@ -14,6 +14,7 @@ public class EventListener implements ApplicationListener<ApplicationReadyEvent>
 
     private final GitProperties gitProperties;
 
+    @SuppressWarnings("DesignForExtension")
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
         log.info(event.getClass().getSimpleName() + ": " + gitProperties.getShortCommitId());
