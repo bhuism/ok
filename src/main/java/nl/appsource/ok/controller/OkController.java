@@ -54,7 +54,7 @@ public class OkController {
 
         log.info("Got request for uri: " + uriComponents.toUri());
 
-        request.getHeaders().forEach((s, strings) -> log.info(" Got header: " + s + "=" + strings));
+//        request.getHeaders().forEach((s, strings) -> log.info(" Got header: " + s + "=" + strings));
 
         return Optional.ofNullable(uriComponents.getHost())
             .flatMap(name -> switch (name) {
