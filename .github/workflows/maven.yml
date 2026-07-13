@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -55,12 +55,12 @@ jobs:
         run: uname -a
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io/bhuism/ok
           username: bhuism
@@ -68,7 +68,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/bhuism/ok
 
@@ -117,7 +117,7 @@ jobs:
 
     steps:
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io/bhuism/ok
           username: bhuism
@@ -136,7 +136,7 @@ jobs:
     name: Rollout Restart
     steps:
       - name: Kubernetes context
-        uses: Azure/k8s-set-context@v4
+        uses: Azure/k8s-set-context@v5
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
