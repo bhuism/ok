@@ -6,13 +6,16 @@ on:
   pull_request:
     branches: [ "development" ]
 
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
 jobs:
   test:
     runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -55,22 +58,22 @@ jobs:
         run: uname -a
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
-          registry: ghcr.io/bhuism/ok
-          username: bhuism
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/bhuism/ok
+          images: ${{ env.IMAGE_NAME }}
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -82,11 +85,11 @@ jobs:
 
       - name: Buid and publish image via spring build-image
         run: |
-          mvn -Pnative -ntp -B -DskipTests clean spring-boot:build-image -Dspring-boot.build-image.imagePlatform=linux/${{ matrix.platform }} -Dspring-boot.build-image.imageName=ghcr.io/bhuism/ok:latest-${{ matrix.platform }}
+          mvn -Pnative -ntp -B -DskipTests clean spring-boot:build-image -Dspring-boot.build-image.imagePlatform=linux/${{ matrix.platform }} -Dspring-boot.build-image.imageName=${{ env.IMAGE_NAME }}:latest-${{ matrix.platform }}
 
       - name: Push
         run: |
-          docker push ghcr.io/bhuism/ok:latest-${{ matrix.platform }}
+          docker push ${{ env.IMAGE_NAME }}:latest-${{ matrix.platform }}
 
   #      - name: Set up Pack
   #        uses: buildpacks/github-actions/setup-pack@v5.8.6
@@ -117,17 +120,17 @@ jobs:
 
     steps:
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
-          registry: ghcr.io/bhuism/ok
-          username: bhuism
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: merge containers and push
         run: |
-          docker manifest create ghcr.io/bhuism/ok:latest \
-            ghcr.io/bhuism/ok:latest-amd64 ghcr.io/bhuism/ok:latest-arm64
-          docker manifest push ghcr.io/bhuism/ok:latest
+          docker manifest create ${{ env.IMAGE_NAME }}:latest \
+            ${{ env.IMAGE_NAME }}:latest-amd64 ${{ env.IMAGE_NAME }}:latest-arm64
+          docker manifest push ${{ env.IMAGE_NAME }}:latest
 
 
   rollout-restart:
@@ -136,7 +139,7 @@ jobs:
     name: Rollout Restart
     steps:
       - name: Kubernetes context
-        uses: Azure/k8s-set-context@v4
+        uses: Azure/k8s-set-context@v5
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
