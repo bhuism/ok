@@ -8,7 +8,6 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.1.0</version>
         <relativePath/>
-        <!-- lookup parent from repository -->
     </parent>
     <groupId>nl.appsource</groupId>
     <artifactId>ok</artifactId>
@@ -17,7 +16,7 @@
     <description>OK Rest api</description>
     <properties>
         <java.version>21</java.version>
-        <spring-security.version>6.4.4</spring-security.version>
+        <lombok.version>1.18.36</lombok.version>
         <spotbugs.version>4.10.3.0</spotbugs.version>
         <checkstyle.version>3.6.0</checkstyle.version>
 
@@ -26,10 +25,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -43,6 +38,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
