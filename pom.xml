@@ -16,7 +16,7 @@
     <description>OK Rest api</description>
     <properties>
         <java.version>21</java.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
         <spotbugs.version>4.10.3.0</spotbugs.version>
         <checkstyle.version>3.6.0</checkstyle.version>
 
