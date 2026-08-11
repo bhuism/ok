@@ -15,11 +15,11 @@
     <name>ok</name>
     <description>OK Rest api</description>
     <properties>
-        <java.version>21</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <lombok.version>1.18.46</lombok.version>
         <spotbugs.version>4.10.3.0</spotbugs.version>
         <checkstyle.version>3.6.0</checkstyle.version>
-
     </properties>
     <dependencies>
         <dependency>
@@ -59,10 +59,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <image>
-                    <!--
-                        <builder>dashaun/java-native-builder-arm64:latest</builder>
-                        -->
-                        <builder>dashaun/builder:tiny</builder>
+                        <env>
+                            <BP_JVM_VERSION>25</BP_JVM_VERSION>
+                        </env>
                     </image>
                 </configuration>
             </plugin>
